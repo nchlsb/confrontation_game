@@ -1,37 +1,135 @@
+{- OPTIONS_GHC
+    -Wincomplete-uni-patterns
+    -Wincomplete-record-updates
+    -Wmonomorphism-restriction
+    -Wimplicit-prelude
+    -Wmissing-local-signatures
+    -Wmissing-exported-signatures
+    -Wmissing-export-lists
+    -Wmissing-import-lists
+    -Wmissing-home-modules
+    -Widentities
+    -Wredundant-constraints
+    -Wpartial-fields
+-}
+
+import Prelude
+import Data.Map hiding (map, lookup)
+import Data.Set hiding (map, insert)
+
 -- data Card = Good GoodCard | Bad BadCard
 
-data GoodCard =
-    GoodNumberCard Int | -- 1 to 5
-    GoodRetreat |
-    GoodMagic |
-    NobleSacrifice |
-    ElvenCloak deriving (Show, Eq, Ord)
+data GoodCard
+    = GoodNumberCard Int -- 1 to 5
+    | GoodRetreat
+    | GoodMagic
+    | NobleSacrifice
+    | ElvenCloak
+    deriving (Eq, Ord, Show)
 
-data BadCard =
-    BadNumberCard Int | -- 1 to 6
-    BadRetreat |
-    BadMagic |
-    EyeOfSauron deriving (Show, Eq, Ord)
+data EvilCard
+    = EvilNumberCard Int -- 1 to 6
+    | EvilRetreat
+    | EvilMagic
+    | EyeOfSauron
+    deriving (Eq, Ord, Show)
 
-data Piece =
-    Frodo |
-    Pippin |
-    Gandalf |
-    Sam |
-    Legolas |
-    Aragorn |
-    Gimli |
-    Merry |
-    Boromir |
-    Orcs |
-    Shelob |
-    Saruman |
-    FlyingNazgul |
-    Balrog |
-    Warg |
-    BlackRider |
-    WitchKing |
-    CaveTroll deriving (Show, Eq, Ord)
+data GoodCardsState = GoodCardsState {
+    hasGood1 :: Bool,
+    hasGood2 :: Bool,
+    hasGood3 :: Bool,
+    hasGood4 :: Bool,
+    hasGood5 :: Bool,
+    hasGoodMagic :: Bool,
+    hasGoodRetreat :: Bool,
+    hasNobleSacrifice :: Bool,
+    hasElvenCloak :: Bool
+}
+
+data EvilCardsState = EvilCardsState {
+    hasEvil1 :: Bool,
+    hasEvil2 :: Bool,
+    hasEvil3 :: Bool,
+    hasEvil4 :: Bool,
+    hasEvil5 :: Bool,
+    hasEvil6 :: Bool,
+    hasEvilRetreat :: Bool,
+    hasEvilMagic :: Bool,
+    hasEyeOfSauron :: Bool
+}
+
+
+data List
+    = Nil
+    | Cons Int List
+    | Brett
+
+brettMap :: (Int -> Int) -> List -> List
+brettMap f list = case list of
+    Nil -> Nil
+    (Cons first rest) -> (Cons (f first) (brettMap f rest))
+
+data Choice
+    = WhereToMove
+    | WhichCardToPlay
+    | WhichCardToPlayFirst
+    | WhichCardToPlaySecond
+    | NoCardsArePlayed
+    | KillMoriaCrosser
+    | RetreatOrFight
+    | WhichDiscardedCardToPlay
+
+data BattleOutcome
+    = BothDie
+    | GoodPieceDies
+    | EvilPieceDies
+    | EvilRetreatsSideways
+    | GoodRetreatsBackwards
+    | GoodRetreatSideways
+
+data Piece
+    = Frodo
+    | Pippin
+    | Gandalf
+    | Sam
+    | Legolas
+    | Aragorn
+    | Gimli
+    | Merry
+    | Boromir
+    | Orcs
+    | Shelob
+    | Saruman
+    | FlyingNazgul
+    | Balrog
+    | Warg
+    | BlackRider
+    | WitchKing
+    | CaveTroll
+
+battle :: Piece -> Piece -> BattleOutcome
+battle Gimli Orcs = EvilPieceDies
+battle Merry WitchKing = EvilPieceDies
+battle Legolas FlyingNazgul = EvilPieceDies
+battle Boromir _ = BothDie
+battle _ Orcs = GoodPieceDies
+
+battle goodPiece evilPiece = case (compare (strength goodPiece) (strength evilPiece)) of
+    LT -> GoodPieceDies
+    EQ -> BothDie
+    GT -> EvilPieceDies
+
+
+
+simpleBattle
+    :: Piece
+    -> Piece
+    -> GoodCard
+    -> EvilCard
+    -> Set GoodCard
+    -> Set EvilCard
+    -> [BattleOutcome]
+simpleBattle = undefined 
 
 {--
 
@@ -113,16 +211,25 @@ isMountain _ = False
 
 -- balrogIsInMoria :: BoardState -> Maybe Bool
 
-data BoardState = BoardState
-    (Set GoodCard) -- discarded good cards
-    (Set BadCard) -- discarded bad cards
-    (Set Piece) -- dead pieces
-    (Map Region (Set Piece)) -- The regions' occupants
+data GoodInfo = GoodInfo
+    (Map Region (Set (Maybe Piece)))
+    GoodCardsState
+    EvilCardsState
+    (Maybe EvilCard)
 
+
+balrogInMoria :: GoodInfo -> Maybe Bool
+balrogInMoria (GoodInfo myCurrentBoardState _ _ Nothing) = undefined
+{-
 removeFromRegion :: (Map Region (Set Piece)) -> Region -> Piece -> (Map Region (Set Piece))
 removeFromRegion regions region piece = insert region (remove piece (lookup region regions)) regions
+
 
 move :: Piece -> Region -> Region -> BoardState -> BoardState
 move x oldRegion newRegion (BoardState goodCards badCards deadPieces positions) =
     (BoardState goodCards badCards deadPieces newPositions) where
-        
+-}        
+
+main = undefined
+
+
