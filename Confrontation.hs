@@ -1,23 +1,8 @@
-{- OPTIONS_GHC
-    -Wincomplete-uni-patterns
-    -Wincomplete-record-updates
-    -Wmonomorphism-restriction
-    -Wimplicit-prelude
-    -Wmissing-local-signatures
-    -Wmissing-exported-signatures
-    -Wmissing-export-lists
-    -Wmissing-import-lists
-    -Wmissing-home-modules
-    -Widentities
-    -Wredundant-constraints
-    -Wpartial-fields
--}
+module Confrontation where
 
-import Prelude
 import Data.Map hiding (map, lookup)
 import Data.Set hiding (map, insert)
 
--- data Card = Good GoodCard | Bad BadCard
 
 data GoodCard
     = GoodNumberCard Int -- 1 to 5
@@ -57,17 +42,6 @@ data EvilCardsState = EvilCardsState {
     hasEvilMagic :: Bool,
     hasEyeOfSauron :: Bool
 }
-
-
-data List
-    = Nil
-    | Cons Int List
-    | Brett
-
-brettMap :: (Int -> Int) -> List -> List
-brettMap f list = case list of
-    Nil -> Nil
-    (Cons first rest) -> (Cons (f first) (brettMap f rest))
 
 data Choice
     = WhereToMove
@@ -111,7 +85,7 @@ battle :: Piece -> Piece -> BattleOutcome
 battle Gimli Orcs = EvilPieceDies
 battle Merry WitchKing = EvilPieceDies
 battle Legolas FlyingNazgul = EvilPieceDies
-battle Boromir _ = BothDie
+battle Boromir _ = BothDie 
 battle _ Orcs = GoodPieceDies
 
 battle goodPiece evilPiece = case (compare (strength goodPiece) (strength evilPiece)) of
@@ -131,24 +105,6 @@ simpleBattle
     -> [BattleOutcome]
 simpleBattle = undefined 
 
-{--
-
-class List
-abstract List map()
-
-class Nil extends List
-public Nil()
-@Override
-map() return Nil()
-
-class Cons extends List
-private int car
-private List cdr
-public Cons(int a, List b)
-
-map() return new Cons(f(car), map(cdr))
-
---}
 
 strength :: Piece -> Int
 strength Frodo = 1
@@ -200,7 +156,7 @@ data Region =
     Mirkwood |
     Gondor |
     Dagorlad |
-    Mordor deriving (Show)
+    Mordor deriving (Show, Eq)
 
 isMountain :: Region -> Bool
 isMountain GapOfRohan = True
@@ -216,20 +172,3 @@ data GoodInfo = GoodInfo
     GoodCardsState
     EvilCardsState
     (Maybe EvilCard)
-
-
-balrogInMoria :: GoodInfo -> Maybe Bool
-balrogInMoria (GoodInfo myCurrentBoardState _ _ Nothing) = undefined
-{-
-removeFromRegion :: (Map Region (Set Piece)) -> Region -> Piece -> (Map Region (Set Piece))
-removeFromRegion regions region piece = insert region (remove piece (lookup region regions)) regions
-
-
-move :: Piece -> Region -> Region -> BoardState -> BoardState
-move x oldRegion newRegion (BoardState goodCards badCards deadPieces positions) =
-    (BoardState goodCards badCards deadPieces newPositions) where
--}        
-
-main = undefined
-
-
