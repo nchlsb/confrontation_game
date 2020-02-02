@@ -2,8 +2,8 @@ module Movement where
 
 import Confrontation (Region (..))
 
-sidewaysAttacks :: [(Region, Region)]
-sidewaysAttacks =
+sideways :: [(Region, Region)]
+sideways =
     [ (Arthedain, Cardolan), (Cardolan, Arthedain)
     , (Rhudaur, Eregion), (Eregion, Rhudaur)
     , (Eregion, Enedwaith), (Enedwaith, Eregion)
@@ -12,8 +12,8 @@ sidewaysAttacks =
     , (Fangorn, Mirkwood), (Mirkwood, Fangorn)
     ]
 
-goodMovement :: [(Region, Region)]
-goodMovement =
+towardsMordor :: [(Region, Region)]
+towardsMordor =
     [ (TheShire, Arthedain)
     , (TheShire, Cardolan)
     , (Arthedain, Rhudaur)
@@ -40,8 +40,8 @@ goodMovement =
     , (Gondor, Mordor)
     ]
 
-evilMovement :: [(Region, Region)]
-evilMovement = map (\(a, b) -> (b, a)) goodMovement
+towardsTheShire :: [(Region, Region)]
+towardsTheShire = map (\(a, b) -> (b, a)) towardsTheShire
 
 shortcuts :: [(Region, Region)]
 shortcuts = 
