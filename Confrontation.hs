@@ -5,7 +5,11 @@ import Data.Set hiding (map, insert)
 
 
 data GoodCard
-    = GoodNumberCard Int -- 1 to 5
+    = Good1
+    | Good2
+    | Good3
+    | Good4
+    | Good5
     | GoodRetreat
     | GoodMagic
     | NobleSacrifice
@@ -13,35 +17,16 @@ data GoodCard
     deriving (Eq, Ord, Show)
 
 data EvilCard
-    = EvilNumberCard Int -- 1 to 6
+    = Evil1
+    | Evil2
+    | Evil3
+    | Evil4
+    | Evil5
+    | Evil6
     | EvilRetreat
     | EvilMagic
     | EyeOfSauron
     deriving (Eq, Ord, Show)
-
-data GoodCardsState = GoodCardsState {
-    hasGood1 :: Bool,
-    hasGood2 :: Bool,
-    hasGood3 :: Bool,
-    hasGood4 :: Bool,
-    hasGood5 :: Bool,
-    hasGoodMagic :: Bool,
-    hasGoodRetreat :: Bool,
-    hasNobleSacrifice :: Bool,
-    hasElvenCloak :: Bool
-}
-
-data EvilCardsState = EvilCardsState {
-    hasEvil1 :: Bool,
-    hasEvil2 :: Bool,
-    hasEvil3 :: Bool,
-    hasEvil4 :: Bool,
-    hasEvil5 :: Bool,
-    hasEvil6 :: Bool,
-    hasEvilRetreat :: Bool,
-    hasEvilMagic :: Bool,
-    hasEyeOfSauron :: Bool
-}
 
 data Choice
     = WhereToMove
@@ -128,17 +113,17 @@ strength CaveTroll = 9
 
 data Side = Good | Bad deriving (Eq, Show)
 
-side :: Piece -> Side
-side Frodo = Good
-side Pippin = Good
-side Gandalf = Good
-side Sam = Good
-side Legolas = Good
-side Aragorn = Good
-side Gimli = Good
-side Merry = Good
-side Boromir = Good
-side _ = Bad
+sideOf :: Piece -> Side
+sideOf Frodo = Good
+sideOf Pippin = Good
+sideOf Gandalf = Good
+sideOf Sam = Good
+sideOf Legolas = Good
+sideOf Aragorn = Good
+sideOf Gimli = Good
+sideOf Merry = Good
+sideOf Boromir = Good
+sideOf _ = Bad
 
 data Region =
     TheShire |
@@ -156,7 +141,7 @@ data Region =
     Mirkwood |
     Gondor |
     Dagorlad |
-    Mordor deriving (Show, Eq)
+    Mordor deriving (Show, Eq, Ord)
 
 isMountain :: Region -> Bool
 isMountain GapOfRohan = True
@@ -164,11 +149,3 @@ isMountain Moria = True
 isMountain MistyMountains = True
 isMountain TheHighPass = True
 isMountain _ = False
-
--- balrogIsInMoria :: BoardState -> Maybe Bool
-
-data GoodInfo = GoodInfo
-    (Map Region (Set (Maybe Piece)))
-    GoodCardsState
-    EvilCardsState
-    (Maybe EvilCard)
