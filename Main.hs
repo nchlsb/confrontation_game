@@ -1,5 +1,7 @@
-import Confrontation
 import Movement
+import Show
+import Confrontation
+import BoardState
 
 main :: IO ()
-main = undefined
+main = putStr $ showPositions (positions sampleStartingState) $ standardEvilMove sampleStartingState Fangorn

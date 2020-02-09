@@ -1,6 +1,6 @@
 module BoardState where
 
-import Data.Map (Map, lookup)
+import Data.Map (Map, lookup, fromList)
 import Data.Maybe (fromJust)
 import Prelude hiding (lookup)
 import Confrontation (sideOf, Region(..), isMountain, GoodCard(..), EvilCard(..), Piece(..), Side(..))
@@ -57,22 +57,26 @@ data GameState = GameState
     , evilCards :: [EvilCard]
     }
 
-occupants :: GameState -> Region -> [Piece]
-occupants gameState region = (fromJust . lookup region . positions) gameState
-
-opponentOccupiesRegion :: GameState -> Side -> Region -> Bool
-opponentOccupiesRegion gameState side region = case occupants gameState region of
-    [] -> False
-    (x:_) -> (sideOf x) /= side
-
-canMoveIntoRegion :: GameState -> Side -> Region -> Bool
-canMoveIntoRegion gameState side region =
-    null (occupants gameState region) ||
-    opponentOccupiesRegion gameState side region ||
-    length (occupants gameState region) < (maximumCapacity region)
-
-maximumCapacity :: Region -> Int
-maximumCapacity region
-    | region == TheShire || region == Mordor = 4
-    | isMountain region = 1
-    | otherwise = 2
+sampleStartingState :: GameState
+sampleStartingState = GameState
+    { goodCards = initialGoodCards
+    , evilCards = initialEvilCards
+    , positions = fromList
+        [ (TheShire, [Frodo, Sam, Merry, Pippin])
+        , (Arthedain, [Legolas])
+        , (Cardolan, [Gimli])
+        , (Rhudaur, [Boromir])
+        , (Eregion, [Gandalf])
+        , (Enedwaith, [Aragorn])
+        , (TheHighPass, [])
+        , (MistyMountains, [])
+        , (Moria, [])
+        , (GapOfRohan, [])
+        , (Mirkwood, [Balrog])
+        , (Fangorn, [Shelob])
+        , (Rohan, [WitchKing])
+        , (Dagorlad, [FlyingNazgul])
+        , (Gondor, [BlackRider])
+        , (Mordor, [Saruman, Orcs, Warg, CaveTroll])
+        ]
+    }

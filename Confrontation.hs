@@ -111,7 +111,7 @@ strength BlackRider = 3
 strength WitchKing = 5
 strength CaveTroll = 9
 
-data Side = Good | Bad deriving (Eq, Show)
+data Side = Good | Evil deriving (Eq, Show)
 
 sideOf :: Piece -> Side
 sideOf Frodo = Good
@@ -123,7 +123,7 @@ sideOf Aragorn = Good
 sideOf Gimli = Good
 sideOf Merry = Good
 sideOf Boromir = Good
-sideOf _ = Bad
+sideOf _ = Evil
 
 data Region =
     TheShire |
