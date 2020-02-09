@@ -1,7 +1,7 @@
 module Movement where
 
 import Confrontation (Region(..), Piece(..), Side (..), sideOf, isMountain)
-import BoardState (GameState, positions)
+import BoardState (GameState, positions, regions)
 import Prelude hiding (lookup)
 import Data.Maybe (fromJust)
 import Data.Map (lookup)
@@ -79,8 +79,8 @@ maximumCapacity region
     | isMountain region = 1
     | otherwise = 2
 
-standardGoodMove :: GameState -> Region -> [Region]
-standardGoodMove gameState region = filter isLegalMove potentialMoves
+standardGoodMoves :: GameState -> Region -> [Region]
+standardGoodMoves gameState region = filter isLegalMove potentialMoves
     where
         isLegalMove :: Region -> Bool
         isLegalMove move = canMoveIntoRegion gameState Good move
@@ -89,8 +89,8 @@ standardGoodMove gameState region = filter isLegalMove potentialMoves
         potentialMoves = lookupAll region (towardsMordor ++ shortcuts)
 
 
-standardEvilMove :: GameState -> Region -> [Region]
-standardEvilMove gameState region = filter isLegalMove potentialMoves
+standardEvilMoves :: GameState -> Region -> [Region]
+standardEvilMoves gameState region = filter isLegalMove potentialMoves
     where
         isLegalMove :: Region -> Bool
         isLegalMove move = canMoveIntoRegion gameState Evil move
@@ -98,4 +98,50 @@ standardEvilMove gameState region = filter isLegalMove potentialMoves
         potentialMoves :: [Region]
         potentialMoves = lookupAll region (towardsTheShire)
 
+frodoRetreatMoves :: GameState -> Region -> [Region]
+frodoRetreatMoves gameState region = undefined -- Can Frodo retreat into spaces occupied by the enemy?
 
+-- Aragorn can move into any adjacent region -- forwards, sideways, or backwards -- if
+-- he attacks at least one enemy character by doing so.
+aragornMoves :: GameState -> Region -> [Region]
+aragornMoves gameState region = standardGoodMoves gameState region ++ attacks
+    where
+        attacks :: [Region]
+        attacks =
+            filter (opponentOccupiesRegion gameState Evil) $ 
+            map snd $ 
+            filter (\(source, _) -> source == region) $
+            sideways ++ towardsTheShire
+
+-- The Witch King can move sideways into an adjacent region
+-- if he attacks at least one enemy character by doing so.
+witchKingMoves :: GameState -> Region -> [Region]
+witchKingMoves gameState region = standardEvilMoves gameState region ++ attacks
+    where
+        attacks :: [Region]
+        attacks =
+            filter (opponentOccupiesRegion gameState Good) $
+            map snd $
+            filter (\(source, _) -> source == region) $
+            sideways
+
+-- The black Rider can move forward any number of regions if he attacks
+-- at least one enemy character by doing so. If the Black Rider does
+-- not want to attack, then he can only move forward into an adjacent region
+-- like the other characters. The Black Rider may never move into or through
+-- a region containing the maximum number of Dark characters, nor may he move
+-- through a region occupied by one or more enemies.
+blackRiderMoves :: GameState -> Region -> [Region]
+blackRiderMoves gameState region = standardEvilMoves gameState region ++ attacks
+    where
+        attacks :: [Region]
+        attacks = undefined
+
+flyingNazgulMoves :: GameState -> Region -> [Region]
+flyingNazgulMoves gameState region = standardEvilMoves gameState region ++ attacks
+    where
+        attacks :: [Region]
+        attacks =
+            filter
+            (\r -> length (occupants gameState r) == 1 && opponentOccupiesRegion gameState Evil r)
+            regions 
