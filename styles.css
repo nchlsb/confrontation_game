@@ -1,0 +1,98 @@
+body {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-areas:
+        ".           .           .              Mordor         Mordor   .         .          ."
+        ".           .           Dagorlad       Dagorlad       Gondor   Gondor    .          ."
+        ".           Mirkwood    Mirkwood       Fangorn        Fangorn  Rohan     Rohan      ."
+        "TheHighPass TheHighPass MistyMountains MistyMountains Moria    Moria     GapOfRohan GapOfRohan"
+        ".           Rhudaur     Rhudaur        Eregion        Eregion  Enedwaith Enedwaith  ."
+        ".           .           Arthedain      Arthedain      Cardolan Cardolan  .          ."
+        ".           .           .              TheShire       TheShire .         .          .";
+}
+
+#Mordor {
+    grid-area: Mordor;
+}
+
+#Dagorlad {
+    grid-area: Dagorlad;
+}
+
+#Gondor {
+    grid-area: Gondor;
+}
+
+#Mirkwood {
+    grid-area: Mirkwood;
+}
+
+#Fangorn {
+    grid-area: Fangorn;
+}
+
+#Rohan {
+    grid-area: Rohan;
+}
+
+#TheHighPass {
+    grid-area: TheHighPass;
+}
+
+#MistyMountains {
+    grid-area: MistyMountains;
+}
+
+#Moria {
+    grid-area: Moria;
+}
+
+#GapOfRohan {
+    grid-area: GapOfRohan;
+}
+
+#Rhudaur {
+    grid-area: Rhudaur;
+}
+
+#Eregion {
+    grid-area: Eregion;
+}
+
+#Enedwaith {
+    grid-area: Enedwaith;
+}
+
+#Arthedain {
+    grid-area: Arthedain;
+}
+
+#Cardolan {
+    grid-area: Cardolan;
+}
+
+#TheShire {
+    grid-area: TheShire;
+}
+
+h1 {
+    font-size: 18pt;
+    margin: 1px;
+    padding: 0px;
+}
+
+ul {
+    margin: 0px;
+    text-align: left;
+}
+
+h1.selected {
+    color: red;
+}
+
+section {
+    height: 115px;
+    border: 1px solid black;
+    border-collapse: collapse;
+    text-align: center;
+}

@@ -1,10 +1,9 @@
 module Movement where
 
 import Confrontation (Region(..), Piece(..), Side (..), sideOf, isMountain)
-import BoardState (GameState, positions, regions)
-import Prelude hiding (lookup)
+import GameState (GameState(..), positions, regions)
 import Data.Maybe (fromJust)
-import Data.Map (lookup)
+import Data.List (nub)
 
 sideways :: [(Region, Region)]
 sideways =
@@ -59,19 +58,20 @@ lookupAll :: (Eq a) => a -> [(a, b)] -> [b]
 lookupAll _ [] = []
 lookupAll x ((y1, y2):ys) = if x == y1 then y2 : lookupAll x ys else lookupAll x ys
 
-occupants :: GameState -> Region -> [Piece]
-occupants gameState region = (fromJust . lookup region . positions) gameState
-
 opponentOccupiesRegion :: GameState -> Side -> Region -> Bool
-opponentOccupiesRegion gameState side region = case occupants gameState region of
-    [] -> False
-    (x:_) -> (sideOf x) /= side
+opponentOccupiesRegion (GameState positions _ _) side region = any (\(piece, region') -> sideOf piece /= side && region == region') positions
+
+numberOfOccupants :: GameState -> Region -> Int
+numberOfOccupants gameState region = count (\(_, region') -> region' == region) (positions gameState)
+    where
+        count :: (a -> Bool) -> [a] -> Int
+        count _ [] = 0
+        count p (x:xs) = (if p x then 1 else 0) + count p xs
 
 canMoveIntoRegion :: GameState -> Side -> Region -> Bool
 canMoveIntoRegion gameState side region =
-    null (occupants gameState region) ||
     opponentOccupiesRegion gameState side region ||
-    length (occupants gameState region) < (maximumCapacity region)
+    numberOfOccupants gameState region < (maximumCapacity region)
 
 maximumCapacity :: Region -> Int
 maximumCapacity region
@@ -89,11 +89,11 @@ standardGoodMoves gameState region = filter isLegalMove potentialMoves
         potentialMoves = lookupAll region (towardsMordor ++ shortcuts)
 
 
-standardEvilMoves :: GameState -> Region -> [Region]
-standardEvilMoves gameState region = filter isLegalMove potentialMoves
+standardDarkMoves :: GameState -> Region -> [Region]
+standardDarkMoves gameState region = filter isLegalMove potentialMoves
     where
         isLegalMove :: Region -> Bool
-        isLegalMove move = canMoveIntoRegion gameState Evil move
+        isLegalMove move = canMoveIntoRegion gameState Dark move
 
         potentialMoves :: [Region]
         potentialMoves = lookupAll region (towardsTheShire)
@@ -108,7 +108,7 @@ aragornMoves gameState region = standardGoodMoves gameState region ++ attacks
     where
         attacks :: [Region]
         attacks =
-            filter (opponentOccupiesRegion gameState Evil) $ 
+            filter (opponentOccupiesRegion gameState Dark) $ 
             map snd $ 
             filter (\(source, _) -> source == region) $
             sideways ++ towardsTheShire
@@ -116,7 +116,7 @@ aragornMoves gameState region = standardGoodMoves gameState region ++ attacks
 -- The Witch King can move sideways into an adjacent region
 -- if he attacks at least one enemy character by doing so.
 witchKingMoves :: GameState -> Region -> [Region]
-witchKingMoves gameState region = standardEvilMoves gameState region ++ attacks
+witchKingMoves gameState region = standardDarkMoves gameState region ++ attacks
     where
         attacks :: [Region]
         attacks =
@@ -125,23 +125,39 @@ witchKingMoves gameState region = standardEvilMoves gameState region ++ attacks
             filter (\(source, _) -> source == region) $
             sideways
 
--- The black Rider can move forward any number of regions if he attacks
+-- The Black Rider can move forward any number of regions if he attacks
 -- at least one enemy character by doing so. If the Black Rider does
 -- not want to attack, then he can only move forward into an adjacent region
 -- like the other characters. The Black Rider may never move into or through
 -- a region containing the maximum number of Dark characters, nor may he move
 -- through a region occupied by one or more enemies.
 blackRiderMoves :: GameState -> Region -> [Region]
-blackRiderMoves gameState region = standardEvilMoves gameState region ++ attacks
+blackRiderMoves gameState region = nub $ standardDarkMoves gameState region ++ attacks
     where
         attacks :: [Region]
-        attacks = undefined
+        attacks = go region
+
+        go region' = if opponentOccupiesRegion gameState Dark region' then [region'] else concatMap go $ standardDarkMoves gameState region'
 
 flyingNazgulMoves :: GameState -> Region -> [Region]
-flyingNazgulMoves gameState region = standardEvilMoves gameState region ++ attacks
+flyingNazgulMoves gameState region = nub $ standardDarkMoves gameState region ++ attacks
     where
         attacks :: [Region]
         attacks =
             filter
-            (\r -> length (occupants gameState r) == 1 && opponentOccupiesRegion gameState Evil r)
+            (\region' -> numberOfOccupants gameState region' == 1 && opponentOccupiesRegion gameState Dark region')
             regions 
+
+
+
+possibleMoves :: GameState -> Piece -> [Region]
+possibleMoves gameState piece = case lookup piece (positions gameState) of
+        Just region -> (case piece of
+            Aragorn -> aragornMoves
+            WitchKing -> witchKingMoves
+            FlyingNazgul -> flyingNazgulMoves
+            BlackRider -> blackRiderMoves
+            standardPiece -> case sideOf standardPiece of
+                Good -> standardGoodMoves
+                Dark -> standardDarkMoves) gameState region
+        Nothing -> []

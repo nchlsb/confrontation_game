@@ -3,49 +3,6 @@ module Confrontation where
 import Data.Map hiding (map, lookup)
 import Data.Set hiding (map, insert)
 
-
-data GoodCard
-    = Good1
-    | Good2
-    | Good3
-    | Good4
-    | Good5
-    | GoodRetreat
-    | GoodMagic
-    | NobleSacrifice
-    | ElvenCloak
-    deriving (Eq, Ord, Show)
-
-data EvilCard
-    = Evil1
-    | Evil2
-    | Evil3
-    | Evil4
-    | Evil5
-    | Evil6
-    | EvilRetreat
-    | EvilMagic
-    | EyeOfSauron
-    deriving (Eq, Ord, Show)
-
-data Choice
-    = WhereToMove
-    | WhichCardToPlay
-    | WhichCardToPlayFirst
-    | WhichCardToPlaySecond
-    | NoCardsArePlayed
-    | KillMoriaCrosser
-    | RetreatOrFight
-    | WhichDiscardedCardToPlay
-
-data BattleOutcome
-    = BothDie
-    | GoodPieceDies
-    | EvilPieceDies
-    | EvilRetreatsSideways
-    | GoodRetreatsBackwards
-    | GoodRetreatSideways
-
 data Piece
     = Frodo
     | Pippin
@@ -64,32 +21,7 @@ data Piece
     | Warg
     | BlackRider
     | WitchKing
-    | CaveTroll
-
-battle :: Piece -> Piece -> BattleOutcome
-battle Gimli Orcs = EvilPieceDies
-battle Merry WitchKing = EvilPieceDies
-battle Legolas FlyingNazgul = EvilPieceDies
-battle Boromir _ = BothDie 
-battle _ Orcs = GoodPieceDies
-
-battle goodPiece evilPiece = case (compare (strength goodPiece) (strength evilPiece)) of
-    LT -> GoodPieceDies
-    EQ -> BothDie
-    GT -> EvilPieceDies
-
-
-
-simpleBattle
-    :: Piece
-    -> Piece
-    -> GoodCard
-    -> EvilCard
-    -> Set GoodCard
-    -> Set EvilCard
-    -> [BattleOutcome]
-simpleBattle = undefined 
-
+    | CaveTroll deriving (Show, Eq, Ord, Read)
 
 strength :: Piece -> Int
 strength Frodo = 1
@@ -111,7 +43,7 @@ strength BlackRider = 3
 strength WitchKing = 5
 strength CaveTroll = 9
 
-data Side = Good | Evil deriving (Eq, Show)
+data Side = Good | Dark deriving (Eq, Show)
 
 sideOf :: Piece -> Side
 sideOf Frodo = Good
@@ -123,25 +55,33 @@ sideOf Aragorn = Good
 sideOf Gimli = Good
 sideOf Merry = Good
 sideOf Boromir = Good
-sideOf _ = Evil
+sideOf Orcs = Dark
+sideOf Shelob = Dark
+sideOf Saruman = Dark
+sideOf FlyingNazgul = Dark
+sideOf Balrog = Dark
+sideOf Warg = Dark
+sideOf BlackRider = Dark
+sideOf WitchKing = Dark
+sideOf CaveTroll = Dark
 
-data Region =
-    TheShire |
-    Cardolan |
-    Arthedain |
-    Enedwaith |
-    Eregion |
-    Rhudaur |
-    GapOfRohan |
-    Moria |
-    MistyMountains |
-    TheHighPass |
-    Rohan |
-    Fangorn |
-    Mirkwood |
-    Gondor |
-    Dagorlad |
-    Mordor deriving (Show, Eq, Ord)
+data Region
+    = TheShire
+    | Cardolan
+    | Arthedain
+    | Enedwaith
+    | Eregion
+    | Rhudaur
+    | GapOfRohan
+    | Moria
+    | MistyMountains
+    | TheHighPass
+    | Rohan
+    | Fangorn
+    | Mirkwood
+    | Gondor
+    | Dagorlad
+    | Mordor deriving (Show, Eq, Ord)
 
 isMountain :: Region -> Bool
 isMountain GapOfRohan = True
@@ -149,3 +89,8 @@ isMountain Moria = True
 isMountain MistyMountains = True
 isMountain TheHighPass = True
 isMountain _ = False
+
+goodImmediatelyDefeats :: Piece -> Piece -> Bool
+goodImmediatelyDefeats Merry   WitchKing    = True
+goodImmediatelyDefeats Legolas FlyingNazgul = True
+goodImmediatelyDefeats Gimli   Orcs         = True
